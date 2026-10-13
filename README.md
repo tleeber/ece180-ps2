@@ -5,6 +5,8 @@
 - I had never heard the term saturated used in this context, so I had to make sure it meant to leave the count at max.
 - The _ni in rst_ni means that reset is active when low.
 **Problem 2**
+- No glaring issues
+- Temp non-input.output variables declared with "logic"
 
 
 

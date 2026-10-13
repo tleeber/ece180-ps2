@@ -86,8 +86,12 @@ module p2_regfile
   always_ff @(posedge clk_i) begin
     if (!rst_ni) begin
       // <-- fill in: clear all registers
+      for (int i = 0; i < NUM_REGS; i++) regs_q[i] <= '0;
     end
     // <-- fill in: the guarded write
+    else if (wr_i.en && wr_i.addr != '0) begin
+      regs_q[wr_i.addr] <= wr_i.data;
+    end
   end
 
   // --------------------------------------------------------------------------
@@ -98,7 +102,7 @@ module p2_regfile
   // and the same for rs2. Get this working and passing the first group of
   // testbench checks before you touch part (c).
   // --------------------------------------------------------------------------
-
+  
   // --------------------------------------------------------------------------
   // TODO 2c -- write-to-read bypass (also called read-during-write forwarding).
   //
@@ -129,8 +133,12 @@ module p2_regfile
   // That is why it is a parameter here and an architectural decision in a
   // real design.
   // --------------------------------------------------------------------------
+  logic bypass1, bypass2;
 
-  assign rs1_data_o = '0;   // <-- replace (2b, then extend for 2c)
-  assign rs2_data_o = '0;   // <-- replace (2b, then extend for 2c)
+  assign bypass1 = bypass_en_i && wr_i.en && (rs1_addr_i == wr_i.addr) && (wr_i.addr != '0);
+  assign bypass2 = bypass_en_i && wr_i.en && (rs2_addr_i == wr_i.addr) && (wr_i.addr != '0);
+  
+  assign rs1_data_o = bypass1 ? wr_i.data : (rs1_addr_i == 0) ? '0 : regs_q[rs1_addr_i];   // <-- replace (2b, then extend for 2c)
+  assign rs2_data_o = bypass2 ? wr_i.data : (rs2_addr_i == 0) ? '0 : regs_q[rs2_addr_i];   // <-- replace (2b, then extend for 2c)
 
 endmodule
